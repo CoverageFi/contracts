@@ -9,6 +9,15 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.s
 contract TokenTransfer is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    error OnlyCrossChainManagerCanCall();
+    error InvalidManagerAddress();
+    error UserAlreadyRegistered();
+    error UsernameAlreadyTaken();
+    error InvalidUsernameLength();
+    error UserNotRegistered();
+    error RecipientNotRegistered();
+    error AmountMustBeGreaterThanZero();
+
     struct User {
         uint256 userId;
         string username;
@@ -27,7 +36,7 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
     event CrossChainManagerUpdated(address indexed newManager);
 
     modifier onlyCrossChainManager() {
-        require(msg.sender == crossChainManagerAddress, "Only CrossChainManager can call this function");
+        require(msg.sender == crossChainManagerAddress, OnlyCrossChainManagerCanCall());
         _;
     }
 
@@ -36,15 +45,15 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
     }
 
     function setCrossChainManager(address _manager) external onlyOwner {
-        require(_manager != address(0), "Invalid manager address");
+        require(_manager != address(0), InvalidManagerAddress());
         crossChainManagerAddress = _manager;
         emit CrossChainManagerUpdated(_manager);
     }
 
     function registerUser(string memory _username) external {
-        require(!users[msg.sender].isRegistered, "User already registered");
-        require(usernameToAddress[_username] == address(0), "Username already taken");
-        require(bytes(_username).length > 0 && bytes(_username).length <= 20, "Invalid username length");
+        require(!users[msg.sender].isRegistered, UserAlreadyRegistered());
+        require(usernameToAddress[_username] == address(0), UsernameAlreadyTaken());
+        require(bytes(_username).length > 0 && bytes(_username).length <= 20, InvalidUsernameLength());
 
         uint256 userId = nextUserId++;
         users[msg.sender] = User(userId, _username, true);
@@ -55,9 +64,9 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
     }
 
     function transferToken(address _token, address _recipient, uint256 _amount) external nonReentrant {
-        require(users[msg.sender].isRegistered, "Sender not registered");
-        require(users[_recipient].isRegistered, "Recipient not registered");
-        require(_amount > 0, "Amount must be greater than 0");
+        require(users[msg.sender].isRegistered, UserNotRegistered());
+        require(users[_recipient].isRegistered, RecipientNotRegistered());
+        require(_amount > 0, AmountMustBeGreaterThanZero());
 
         IERC20(_token).safeTransferFrom(msg.sender, _recipient, _amount);
         emit TokenTransferred(msg.sender, _recipient, _token, _amount);
@@ -71,10 +80,10 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
         external
         nonReentrant
     {
-        require(users[msg.sender].isRegistered, "Sender not registered");
+        require(users[msg.sender].isRegistered, UserNotRegistered());
         address recipient = usernameToAddress[_username];
-        require(recipient != address(0), "Recipient not found");
-        require(_amount > 0, "Amount must be greater than 0");
+        require(recipient != address(0), RecipientNotRegistered());
+        require(_amount > 0, AmountMustBeGreaterThanZero());
 
         IERC20(_token).safeTransferFrom(msg.sender, recipient, _amount);
         emit TokenTransferred(msg.sender, recipient, _token, _amount);
@@ -90,10 +99,30 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
         nonReentrant
     {
         address recipient = userIdToAddress[_userId];
-        require(recipient != address(0), "Recipient not found");
-        require(_amount > 0, "Amount must be greater than 0");
+        require(recipient != address(0), RecipientNotRegistered());
+        require(_amount > 0, AmountMustBeGreaterThanZero());
 
         IERC20(_token).safeTransfer(recipient, _amount);
         emit TokenTransferred(address(this), recipient, _token, _amount);
+    }
+
+    function getUserId(address _userAddress) external view returns (uint256) {
+        require(users[_userAddress].isRegistered, UserNotRegistered());
+        return users[_userAddress].userId;
+    }
+
+    function getUserAddress(uint256 _userId) external view returns (address) {
+        address userAddress = userIdToAddress[_userId];
+        require(userAddress != address(0), UserNotRegistered());
+        return userAddress;
+    }
+
+    function getUsername(address _userAddress) external view returns (string memory) {
+        require(users[_userAddress].isRegistered, UserNotRegistered());
+        return users[_userAddress].username;
+    }
+
+    function isUserRegistered(address _userAddress) external view returns (bool) {
+        return users[_userAddress].isRegistered;
     }
 }
