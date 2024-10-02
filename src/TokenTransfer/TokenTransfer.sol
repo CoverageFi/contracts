@@ -62,8 +62,8 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
      * @notice Initializes the contract with an initial owner
      * @param InitialOwner The address to be set as the initial owner of the contract
      */
-    constructor(address InitialOwner) Ownable(InitialOwner) {
-        crossChainManagerAddress = address(0);
+    constructor(address InitialOwner, address _crossChainManager) Ownable(InitialOwner) {
+        crossChainManagerAddress = _crossChainManager;
     }
 
     /**
