@@ -1,66 +1,87 @@
-## Foundry
+# CoverageFi 
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Table of Contents
+- [CoverageFi](#coveragefi)
+  - [Table of Contents](#table-of-contents)
+  - [Cross-Chain Stablecoin Transfers](#cross-chain-stablecoin-transfers)
+  - [Problem Statement](#problem-statement)
+  - [Features](#features)
+  - [Technologies Used](#technologies-used)
+  - [Architecture Overview](#architecture-overview)
+    - [1. Token Transfer Contract (`TokenTransfer.sol`)](#1-token-transfer-contract-tokentransfersol)
+    - [2. Cross-Chain Transfer Contract (`CrossChainTransfer.sol`)](#2-cross-chain-transfer-contract-crosschaintransfersol)
+  - [Smart Contracts](#smart-contracts)
+    - [Token Transfer Contract](#token-transfer-contract)
+    - [Cross-Chain Transfer Contract](#cross-chain-transfer-contract)
+    - [TokenVault Contract (Optional)](#tokenvault-contract-optional)
+  - [Roadmap](#roadmap)
+  - [License](#license)
 
-Foundry consists of:
+## Cross-Chain Stablecoin Transfers
+CoverageFi is a Web3 application designed to simplify stablecoin transfers by allowing users to send and receive digital dollars (USDC, DAI, USDT) across different blockchain networks. Users can easily send crypto to vendors or peers by scanning a QR code or entering a wallet address. CoverageFi also supports cross-chain transfers using Chainlink CCIP or LayerZero to ensure seamless token movement between chains.
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Problem Statement
+CoverageFi addresses the challenge of providing **global access to digital dollars**. This project offers financial stability to users worldwide by enabling them to hold and transact stablecoins without needing a traditional bank account. CoverageFi makes it easy for individuals and businesses to move funds across blockchain networks, leveraging decentralized finance to reach users anywhere.
 
-## Documentation
+---
 
-https://book.getfoundry.sh/
+## Features
 
-## Usage
+- **Simple Token Transfers**: Users can send stablecoins (USDC, DAI, USDT) to anyone by scanning a QR code or entering an address.
+- **Cross-Chain Transfers**: Transfer stablecoins across multiple chains, including Ethereum, Optimism, and Base, using Chainlink CCIP or LayerZero.
+- **Non-Custodial Wallet Support**: Users can import their existing non-custodial wallets (e.g., Coinbase Wallet) or create platform wallets via WalletConnect.
+- **User Mapping**: Each user is assigned a unique ID for tracking transactions in the smart contracts, while usernames are managed in the frontend.
+- **Stable Store of Value**: Provides users worldwide with access to stablecoins for holding and transacting, offering financial stability in volatile markets.
 
-### Build
+---
 
-```shell
-$ forge build
-```
+## Technologies Used
 
-### Test
+- **Blockchain Networks**: Ethereum, Optimism, Base
+- **Cross-Chain Technology**: LayerZero, Chainlink CCIP
+- **Smart Contracts**: Solidity (ERC20)
+- **Frontend**: Next.js, TailwindCSS, shadcn
+- **Wallet Integration**: WalletConnect, Coinbase Wallet
+- **Token Support**: USDC, DAI, USDT
 
-```shell
-$ forge test
-```
+---
 
-### Format
+## Architecture Overview
 
-```shell
-$ forge fmt
-```
+The architecture consists of the following smart contracts:
 
-### Gas Snapshots
+### 1. Token Transfer Contract (`TokenTransfer.sol`)
 
-```shell
-$ forge snapshot
-```
+- Handles local transfers of stablecoins (USDC, DAI, USDT).
+- Manages user IDs and mappings between users and wallet addresses.
+- Emits events for each token transfer, allowing easy tracking.
 
-### Anvil
+### 2. Cross-Chain Transfer Contract (`CrossChainTransfer.sol`)
 
-```shell
-$ anvil
-```
+- Manages cross-chain token transfers using LayerZero or Chainlink CCIP.
+- Encodes and sends messages to other blockchain networks.
+- Receives tokens on destination chains and transfers them to the intended recipients.
 
-### Deploy
+---
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+## Smart Contracts
 
-### Cast
+### Token Transfer Contract
+This contract allows users to send stablecoins and manage user IDs. It's designed to be efficient and user-friendly while ensuring that every token transfer is securely recorded on the blockchain.
 
-```shell
-$ cast <subcommand>
-```
+### Cross-Chain Transfer Contract
+This contract facilitates cross-chain token transfers using LayerZero or Chainlink CCIP. It handles sending and receiving stablecoins across different blockchain networks.
 
-### Help
+### TokenVault Contract (Optional)
+ Stores tokens during cross-chain transfers (if required).
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+## Roadmap
+
+ - Multi-token support: Add more stablecoins and tokens based on user needs.
+ - Expanded network support: Support additional blockchain networks beyond Ethereum, Optimism, and Base.
+ - Crosschain Integration: Full cross-chain functionality using LayerZero and Chainlink CCIP.
+ - QR Code Payments: Implement QR code-based payments for vendors.
+ - Mobile App: Release a mobile version of CoverageFi for broader adoption.
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
