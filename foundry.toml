@@ -11,7 +11,7 @@ fs_permissions = [
     { access = "read", path = "./reports" },
 ]
 
-remappings = ["@openzeppelin/=lib/openzeppelin-contracts/contracts/"]
+remappings = ["@openzeppelin/=lib/openzeppelin-contracts/"]
 
 [fuzz]
 runs = 1000
