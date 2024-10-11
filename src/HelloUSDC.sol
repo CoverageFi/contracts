@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
-import "wormhole-solidity-sdk/WormholeRelayerSDK.sol";
-import "wormhole-solidity-sdk/interfaces/IERC20.sol";
+import "lib/wormhole-solidity-sdk/src/WormholeRelayerSDK.sol";
+import "lib/wormhole-solidity-sdk/src/interfaces/IERC20.sol";
 
 contract HelloUSDC is CCTPSender, CCTPReceiver {
     uint256 constant GAS_LIMIT = 250_000;
