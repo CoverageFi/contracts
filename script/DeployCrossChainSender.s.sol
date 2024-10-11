@@ -13,9 +13,9 @@ contract DeployCrossChainSender is Script {
         helperConfig = new HelperConfig();
         vm.startBroadcast();
         crossChainSender = new CrossChainSender(
-            helperConfig.getBaseSepoliaConfig().wormholeRelayer,
-            helperConfig.getBaseSepoliaConfig().tokenBridge,
-            helperConfig.getBaseSepoliaConfig().wormhole
+            helperConfig.getSepoliaConfig().wormholeRelayer,
+            helperConfig.getSepoliaConfig().tokenBridge,
+            helperConfig.getSepoliaConfig().wormhole
         );
         vm.stopBroadcast();
         console2.log(

@@ -13,14 +13,14 @@ contract DeployCrossChainReceiver is Script {
         helperConfig = new HelperConfig();
         vm.startBroadcast();
         crossChainReceiver = new CrossChainReceiver(
-            helperConfig.getOPSepoliaConfig().wormholeRelayer,
-            helperConfig.getOPSepoliaConfig().tokenBridge,
-            helperConfig.getOPSepoliaConfig().wormhole
+            helperConfig.getBaseSepoliaConfig().wormholeRelayer,
+            helperConfig.getBaseSepoliaConfig().tokenBridge,
+            helperConfig.getBaseSepoliaConfig().wormhole
         );
         crossChainReceiver.setRegisteredSender(
-            helperConfig.getBaseSepoliaConfig().wormholeChainId,
+            helperConfig.getSepoliaConfig().wormholeChainId,
             bytes32(
-                uint256(uint160(0xc54Ea818b4e46c2F997266df36369eB8Ff24Ee8E))
+                uint256(uint160(0x89AD215eF488E254B804162c83d6BC7DE0e1519c))
             )
         );
         vm.stopBroadcast();
