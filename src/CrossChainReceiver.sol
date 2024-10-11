@@ -31,6 +31,10 @@ contract CrossChainReceiver is TokenReceiver {
         // Decode the recipient address from the payload
         address recipient = abi.decode(payload, (address));
 
+        IERC20(receivedTokens[0].tokenAddress).approve(
+            recipient,
+            receivedTokens[0].amount
+        );
         // Transfer the received tokens to the intended recipient
         IERC20(receivedTokens[0].tokenAddress).transfer(
             recipient,

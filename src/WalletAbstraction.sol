@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-/// @title TokenTransfer
+/// @title WalletAbstraction
 /// @notice A contract for managing user registration and token transfers, including cross-chain capabilities
 /// @dev Inherits from Ownable for access control and ReentrancyGuard for security against reentrancy attacks
-contract TokenTransfer is Ownable, ReentrancyGuard {
+contract WalletAbstraction is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     error OnlyCrossChainManagerCanCall();
@@ -44,17 +44,29 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
     address public crossChainManagerAddress;
 
     /// @dev Emitted when a token transfer occurs
-    event TokenTransferred(address indexed from, address indexed to, address indexed token, uint256 amount);
+    event TokenTransferred(
+        address indexed from,
+        address indexed to,
+        address indexed token,
+        uint256 amount
+    );
 
     /// @dev Emitted when a new user is registered
-    event UserRegistered(address indexed userAddress, uint256 indexed userId, string username);
+    event UserRegistered(
+        address indexed userAddress,
+        uint256 indexed userId,
+        string username
+    );
 
     /// @dev Emitted when the CrossChainManager address is updated
     event CrossChainManagerUpdated(address indexed newManager);
 
     /// @dev Restricts function access to the CrossChainManager
     modifier onlyCrossChainManager() {
-        require(msg.sender == crossChainManagerAddress, OnlyCrossChainManagerCanCall());
+        require(
+            msg.sender == crossChainManagerAddress,
+            OnlyCrossChainManagerCanCall()
+        );
         _;
     }
 
@@ -62,7 +74,10 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
      * @notice Initializes the contract with an initial owner
      * @param InitialOwner The address to be set as the initial owner of the contract
      */
-    constructor(address InitialOwner, address _crossChainManager) Ownable(InitialOwner) {
+    constructor(
+        address InitialOwner,
+        address _crossChainManager
+    ) Ownable(InitialOwner) {
         crossChainManagerAddress = _crossChainManager;
     }
 
@@ -81,17 +96,26 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
      * @notice Registers a new user with a unique username
      * @param _username The desired username for the new user
      */
-    function registerUser(string memory _username) external {
+    function registerUser(
+        string memory _username
+    ) external returns (uint256 userId) {
         require(!users[msg.sender].isRegistered, UserAlreadyRegistered());
-        require(usernameToAddress[_username] == address(0), UsernameAlreadyTaken());
-        require(bytes(_username).length > 0 && bytes(_username).length <= 20, InvalidUsernameLength());
+        require(
+            usernameToAddress[_username] == address(0),
+            UsernameAlreadyTaken()
+        );
+        require(
+            bytes(_username).length > 0 && bytes(_username).length <= 20,
+            InvalidUsernameLength()
+        );
 
-        uint256 userId = nextUserId++;
+        userId = nextUserId++;
         users[msg.sender] = User(userId, _username, true);
         userIdToAddress[userId] = msg.sender;
         usernameToAddress[_username] = msg.sender;
 
         emit UserRegistered(msg.sender, userId, _username);
+        return userId;
     }
 
     /**
@@ -100,7 +124,11 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
      * @param _recipient The address of the recipient
      * @param _amount The amount of tokens to transfer
      */
-    function transferToken(address _token, address _recipient, uint256 _amount) external nonReentrant {
+    function transferToken(
+        address _token,
+        address _recipient,
+        uint256 _amount
+    ) external nonReentrant {
         require(users[msg.sender].isRegistered, UserNotRegistered());
         require(users[_recipient].isRegistered, RecipientNotRegistered());
         require(_amount > 0, AmountMustBeGreaterThanZero());
@@ -119,10 +147,7 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
         address _token,
         string memory _username,
         uint256 _amount
-    )
-        external
-        nonReentrant
-    {
+    ) external nonReentrant {
         require(users[msg.sender].isRegistered, UserNotRegistered());
         address recipient = usernameToAddress[_username];
         require(recipient != address(0), RecipientNotRegistered());
@@ -143,11 +168,7 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
         address _token,
         uint256 _userId,
         uint256 _amount
-    )
-        external
-        onlyCrossChainManager
-        nonReentrant
-    {
+    ) external onlyCrossChainManager nonReentrant {
         address recipient = userIdToAddress[_userId];
         require(recipient != address(0), RecipientNotRegistered());
         require(_amount > 0, AmountMustBeGreaterThanZero());
@@ -182,7 +203,9 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
      * @param _userAddress The address of the user
      * @return The username associated with the given address
      */
-    function getUsername(address _userAddress) external view returns (string memory) {
+    function getUsername(
+        address _userAddress
+    ) external view returns (string memory) {
         require(users[_userAddress].isRegistered, UserNotRegistered());
         return users[_userAddress].username;
     }
@@ -192,7 +215,9 @@ contract TokenTransfer is Ownable, ReentrancyGuard {
      * @param _userAddress The address to check
      * @return A boolean indicating whether the address is registered
      */
-    function isUserRegistered(address _userAddress) external view returns (bool) {
+    function isUserRegistered(
+        address _userAddress
+    ) external view returns (bool) {
         return users[_userAddress].isRegistered;
     }
 }
