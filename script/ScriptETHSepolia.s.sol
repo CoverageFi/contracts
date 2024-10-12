@@ -7,7 +7,7 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ITokenBridge} from "lib/wormhole-solidity-sdk/src/interfaces/ITokenBridge.sol";
 
-contract ScriptBaseSepolia is Script {
+contract ScriptETHSepolia is Script {
     HelperConfig public helperConfig;
     CrossChainSender public crossChainSender;
 
@@ -15,22 +15,23 @@ contract ScriptBaseSepolia is Script {
         helperConfig = new HelperConfig();
         vm.startBroadcast();
         crossChainSender = CrossChainSender(
-            0xc54Ea818b4e46c2F997266df36369eB8Ff24Ee8E
+            0x497047952A7F275B48D097cB0e8b7Ad843100a2A
         );
         uint256 fee = crossChainSender.quoteCrossChainDeposit(
-            helperConfig.getOPSepoliaConfig().wormholeChainId
+            helperConfig.getBaseSepoliaConfig().wormholeChainId
         );
-        IERC20(helperConfig.getBaseSepoliaConfig().usdc).approve(
+        IERC20(helperConfig.getSepoliaConfig().usdc).approve(
             address(crossChainSender),
-            3 * 1e6
+            1 * 1e6
         );
         crossChainSender.sendCrossChainDeposit{value: fee}(
-            helperConfig.getOPSepoliaConfig().wormholeChainId,
-            0x53885340cEc92Edf309AE5573ebfe4a561F609c0,
-            0x6680dfD1c6A4867476b2e60dA89354AC93272878,
-            3 * 1e6,
-            helperConfig.getBaseSepoliaConfig().usdc
+            helperConfig.getBaseSepoliaConfig().wormholeChainId,
+            0xe3F3Fb3a7a5B046298817f0AB073a659f68cbdB3,
+            0x12B2434a1022d5787bf06056F2885Fe35De62Bf8,
+            1 * 1e6,
+            helperConfig.getSepoliaConfig().usdc
         );
+        console2.log(fee);
         vm.stopBroadcast();
     }
 }
