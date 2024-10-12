@@ -15,7 +15,7 @@ contract ScriptETHSepolia is Script {
         helperConfig = new HelperConfig();
         vm.startBroadcast();
         crossChainSender = CrossChainSender(
-            0x89AD215eF488E254B804162c83d6BC7DE0e1519c
+            0x497047952A7F275B48D097cB0e8b7Ad843100a2A
         );
         uint256 fee = crossChainSender.quoteCrossChainDeposit(
             helperConfig.getBaseSepoliaConfig().wormholeChainId
@@ -26,11 +26,12 @@ contract ScriptETHSepolia is Script {
         );
         crossChainSender.sendCrossChainDeposit{value: fee}(
             helperConfig.getBaseSepoliaConfig().wormholeChainId,
-            0xC6Ab09b398BDae7b8A473faD24F4773d4f8Aa47a,
+            0xe3F3Fb3a7a5B046298817f0AB073a659f68cbdB3,
             0x12B2434a1022d5787bf06056F2885Fe35De62Bf8,
             1 * 1e6,
             helperConfig.getSepoliaConfig().usdc
         );
+        console2.log(fee);
         vm.stopBroadcast();
     }
 }

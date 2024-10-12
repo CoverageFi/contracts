@@ -6,6 +6,7 @@ import {CrossChainSender} from "../src/CrossChainSender.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 
 contract DeployCrossChainSender is Script {
+    // Deployed on sepolia 0x497047952A7F275B48D097cB0e8b7Ad843100a2A
     HelperConfig public helperConfig;
     CrossChainSender public crossChainSender;
 

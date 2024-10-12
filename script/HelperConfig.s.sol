@@ -55,6 +55,34 @@ contract HelperConfig is Script {
             });
     }
 
+    function getArbSepoliaConfig() public view returns (NetworkConfig memory) {
+        return
+            NetworkConfig({
+                initialOwner: msg.sender,
+                wormholeChainId: 10003,
+                wormholeRelayer: 0x7B1bD7a6b4E61c2a123AC6BC2cbfC614437D0470,
+                tokenBridge: 0xC7A204bDBFe983FCD8d8E61D02b475D4073fF97e,
+                wormhole: 0x6b9C8671cdDC8dEab9c719bB87cBd3e782bA6a35,
+                usdc: 0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d
+            });
+    }
+
+    function getAvalancheFujiConfig()
+        public
+        view
+        returns (NetworkConfig memory)
+    {
+        return
+            NetworkConfig({
+                initialOwner: msg.sender,
+                wormholeChainId: 6,
+                wormholeRelayer: 0xA3cF45939bD6260bcFe3D66bc73d60f19e49a8BB,
+                tokenBridge: 0x61E44E506Ca5659E6c0bba9b678586fA2d729756,
+                wormhole: 0x7bbcE28e64B3F8b84d876Ab298393c38ad7aac4C,
+                usdc: 0x5425890298aed601595a70AB815c96711a31Bc65
+            });
+    }
+
     /*//////////////////////////////////////////////////////////////
                               LOCAL CONFIG
     //////////////////////////////////////////////////////////////*/
