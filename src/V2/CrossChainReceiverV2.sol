@@ -37,4 +37,28 @@ contract CrossChainReceiverV2 is TokenReceiver {
     
     /// @notice Reentrancy guard
     uint256 private locked = 1;
+
+    // ============ Events ============
+    
+    event TokensReceived(
+        uint16 indexed sourceChain,
+        bytes32 indexed sourceAddress,
+        address indexed recipient,
+        address[] tokens,
+        uint256[] amounts,
+        uint256 timestamp
+    );
+    
+    event ProtocolFeeCollected(
+        address indexed token,
+        uint256 amount,
+        address indexed collector
+    );
+    
+    event ProtocolFeeUpdated(uint256 oldFee, uint256 newFee);
+    event FeeCollectorUpdated(address oldCollector, address newCollector);
+    event Paused(address account);
+    event Unpaused(address account);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    
 }
