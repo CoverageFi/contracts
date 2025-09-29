@@ -61,4 +61,24 @@ contract CrossChainReceiverV2 is TokenReceiver {
     event Unpaused(address account);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     
+    // ============ Constructor ============
+    
+    constructor(
+        address _wormholeRelayer,
+        address _tokenBridge,
+        address _wormhole,
+        address _feeCollector,
+        uint256 _protocolFeeBps
+    )
+        TokenBase(_wormholeRelayer, _tokenBridge, _wormhole)
+    {
+        if (_feeCollector == address(0)) revert InvalidAddress();
+        if (_protocolFeeBps > MAX_PROTOCOL_FEE_BPS) revert InvalidFee();
+        
+        owner = msg.sender;
+        feeCollector = _feeCollector;
+        protocolFeeBps = _protocolFeeBps;
+        
+        emit OwnershipTransferred(address(0), msg.sender);
+    }
 }
