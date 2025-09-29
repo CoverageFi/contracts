@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import {Test, console2} from "forge-std/Test.sol";
-import {HelperConfig} from "../../../script/HelperConfig.s.sol";
-import {CrossChainSender} from "../../../src/CrossChainSender.sol";
-import {CrossChainReceiver} from "../../../src/CrossChainReceiver.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Test, console2 } from "forge-std/Test.sol";
+import { HelperConfig } from "../../../script/HelperConfig.s.sol";
+import { CrossChainSender } from "../../../src/CrossChainSender.sol";
+import { CrossChainReceiver } from "../../../src/CrossChainReceiver.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract TestCrossChainTokenTransfer is Test {
     address public owner = address(1);
@@ -37,19 +37,10 @@ contract TestCrossChainTokenTransfer is Test {
             helperConfig.getOPSepoliaConfig().wormhole
         );
         crossChainReceiver.setRegisteredSender(
-            helperConfig.getBaseSepoliaConfig().wormholeChainId,
-            bytes32(uint256(uint160(address(crossChainSender))))
+            helperConfig.getBaseSepoliaConfig().wormholeChainId, bytes32(uint256(uint160(address(crossChainSender))))
         );
-        vm.makePersistent(
-            owner,
-            address(crossChainSender),
-            address(crossChainReceiver)
-        );
-        vm.makePersistent(
-            recipient,
-            helperConfig.getOPSepoliaConfig().usdc,
-            helperConfig.getBaseSepoliaConfig().usdc
-        );
+        vm.makePersistent(owner, address(crossChainSender), address(crossChainReceiver));
+        vm.makePersistent(recipient, helperConfig.getOPSepoliaConfig().usdc, helperConfig.getBaseSepoliaConfig().usdc);
         vm.stopPrank();
     }
 
@@ -57,14 +48,9 @@ contract TestCrossChainTokenTransfer is Test {
         // Quote the fee for cross-chain transfer and sent it, src chain base-sepolia as owner
         vm.startPrank(owner);
         vm.selectFork(baseSepoliaFork);
-        uint256 fee = crossChainSender.quoteCrossChainDeposit(
-            helperConfig.getOPSepoliaConfig().wormholeChainId
-        );
-        IERC20(helperConfig.getBaseSepoliaConfig().usdc).approve(
-            address(crossChainSender),
-            SEND_AMOUNT
-        );
-        crossChainSender.sendCrossChainDeposit{value: fee}(
+        uint256 fee = crossChainSender.quoteCrossChainDeposit(helperConfig.getOPSepoliaConfig().wormholeChainId);
+        IERC20(helperConfig.getBaseSepoliaConfig().usdc).approve(address(crossChainSender), SEND_AMOUNT);
+        crossChainSender.sendCrossChainDeposit{ value: fee }(
             helperConfig.getOPSepoliaConfig().wormholeChainId,
             address(crossChainReceiver),
             address(recipient),
@@ -74,13 +60,11 @@ contract TestCrossChainTokenTransfer is Test {
         vm.stopPrank();
         // Check balance of recipient on op-sepolia
         vm.selectFork(opSepoliaFork);
-        console2.log(
-            IERC20(helperConfig.getOPSepoliaConfig().usdc).balanceOf(recipient)
-        );
+        console2.log(IERC20(helperConfig.getOPSepoliaConfig().usdc).balanceOf(recipient));
         // Assertions
         // assertGt(balance, SEND_AMOUNT - 5 * 1e6);
         // console2.log(crossChainReceiver.getData());
     }
 
-    function testSendUSDCCrossChainUsingUsernames() public {}
+    function testSendUSDCCrossChainUsingUsernames() public { }
 }
