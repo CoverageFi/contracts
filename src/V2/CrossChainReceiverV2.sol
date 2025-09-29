@@ -18,4 +18,23 @@ import "lib/wormhole-solidity-sdk/src/interfaces/IERC20.sol";
  *      - Gas optimizations
  */
 contract CrossChainReceiverV2 is TokenReceiver {
+    // ============ State Variables ============
+    
+    /// @notice Protocol fee in basis points (e.g., 10 = 0.1%)
+    uint256 public protocolFeeBps;
+    
+    /// @notice Maximum protocol fee (500 = 5%)
+    uint256 public constant MAX_PROTOCOL_FEE_BPS = 500;
+    
+    /// @notice Fee collector address
+    address public feeCollector;
+    
+    /// @notice Emergency pause flag
+    bool public paused;
+    
+    /// @notice Owner address for admin functions
+    address public owner;
+    
+    /// @notice Reentrancy guard
+    uint256 private locked = 1;
 }
