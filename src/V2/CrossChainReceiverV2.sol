@@ -17,5 +17,5 @@ import "lib/wormhole-solidity-sdk/src/interfaces/IERC20.sol";
  *      - SafeERC20 operations
  *      - Gas optimizations
  */
-contract CrossChainReceiverV2 {
+contract CrossChainReceiverV2 is TokenReceiver {
 }
