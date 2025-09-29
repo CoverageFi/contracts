@@ -19,27 +19,27 @@ import "lib/wormhole-solidity-sdk/src/interfaces/IERC20.sol";
  */
 contract CrossChainReceiverV2 is TokenReceiver {
     // ============ State Variables ============
-    
+
     /// @notice Protocol fee in basis points (e.g., 10 = 0.1%)
     uint256 public protocolFeeBps;
-    
+
     /// @notice Maximum protocol fee (500 = 5%)
     uint256 public constant MAX_PROTOCOL_FEE_BPS = 500;
-    
+
     /// @notice Fee collector address
     address public feeCollector;
-    
+
     /// @notice Emergency pause flag
     bool public paused;
-    
+
     /// @notice Owner address for admin functions
     address public owner;
-    
+
     /// @notice Reentrancy guard
     uint256 private locked = 1;
 
     // ============ Events ============
-    
+
     event TokensReceived(
         uint16 indexed sourceChain,
         bytes32 indexed sourceAddress,
@@ -48,21 +48,17 @@ contract CrossChainReceiverV2 is TokenReceiver {
         uint256[] amounts,
         uint256 timestamp
     );
-    
-    event ProtocolFeeCollected(
-        address indexed token,
-        uint256 amount,
-        address indexed collector
-    );
-    
+
+    event ProtocolFeeCollected(address indexed token, uint256 amount, address indexed collector);
+
     event ProtocolFeeUpdated(uint256 oldFee, uint256 newFee);
     event FeeCollectorUpdated(address oldCollector, address newCollector);
     event Paused(address account);
     event Unpaused(address account);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-    
-        // ============ Errors ============
-    
+
+    // ============ Errors ============
+
     error Unauthorized();
     error ContractPaused();
     error InvalidFee();
@@ -70,9 +66,9 @@ contract CrossChainReceiverV2 is TokenReceiver {
     error NoTokensReceived();
     error TransferFailed();
     error ReentrancyGuard();
-    
+
     // ============ Constructor ============
-    
+
     constructor(
         address _wormholeRelayer,
         address _tokenBridge,
@@ -84,11 +80,11 @@ contract CrossChainReceiverV2 is TokenReceiver {
     {
         if (_feeCollector == address(0)) revert InvalidAddress();
         if (_protocolFeeBps > MAX_PROTOCOL_FEE_BPS) revert InvalidFee();
-        
+
         owner = msg.sender;
         feeCollector = _feeCollector;
         protocolFeeBps = _protocolFeeBps;
-        
+
         emit OwnershipTransferred(address(0), msg.sender);
     }
 }
