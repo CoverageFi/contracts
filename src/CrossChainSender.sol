@@ -11,15 +11,15 @@ contract CrossChainSender is TokenSender {
         address _wormholeRelayer,
         address _tokenBridge,
         address _wormhole
-    ) TokenBase(_wormholeRelayer, _tokenBridge, _wormhole) {}
+    )
+        TokenBase(_wormholeRelayer, _tokenBridge, _wormhole)
+    { }
 
     // Function to get the estimated cost for cross-chain deposit
-    function quoteCrossChainDeposit(
-        uint16 targetChain
-    ) public view returns (uint256 cost) {
+    function quoteCrossChainDeposit(uint16 targetChain) public view returns (uint256 cost) {
         // Get the cost of delivering the token and payload to the target chain
         uint256 deliveryCost;
-        (deliveryCost, ) = wormholeRelayer.quoteEVMDeliveryPrice(
+        (deliveryCost,) = wormholeRelayer.quoteEVMDeliveryPrice(
             targetChain,
             0, // receiver value (set to 0 in this example)
             GAS_LIMIT
@@ -36,13 +36,13 @@ contract CrossChainSender is TokenSender {
         address recipient, // Recipient address on the target chain
         uint256 amount, // Amount of tokens to send
         address token // Address of the IERC20 token contract
-    ) public payable {
+    )
+        public
+        payable
+    {
         // Get the cost for cross-chain deposit
         uint256 cost = quoteCrossChainDeposit(targetChain);
-        require(
-            msg.value == cost,
-            "msg.value must equal quoteCrossChainDeposit(targetChain)"
-        );
+        require(msg.value == cost, "msg.value must equal quoteCrossChainDeposit(targetChain)");
 
         // Transfer the specified amount of tokens from the user to this contract
         IERC20(token).transferFrom(msg.sender, address(this), amount);

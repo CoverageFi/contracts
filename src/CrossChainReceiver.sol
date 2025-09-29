@@ -10,7 +10,6 @@ import "lib/wormhole-solidity-sdk/src/interfaces/IERC20.sol";
  * @notice A contract to handle receiving of tokens cross chain using wormhole cross chain token transfer.
  * @notice This contract is deployed on multiple chains to support multiple target chains.
  */
-
 contract CrossChainReceiver is TokenReceiver {
     // The wormhole relayer and registeredSenders are inherited from the Base.sol contract.
 
@@ -18,7 +17,9 @@ contract CrossChainReceiver is TokenReceiver {
         address _wormholeRelayer,
         address _tokenBridge,
         address _wormhole
-    ) TokenBase(_wormholeRelayer, _tokenBridge, _wormhole) {}
+    )
+        TokenBase(_wormholeRelayer, _tokenBridge, _wormhole)
+    { }
 
     // Function to receive the cross-chain payload and tokens with emitter validation
     function receivePayloadAndTokens(
@@ -38,14 +39,8 @@ contract CrossChainReceiver is TokenReceiver {
         // Decode the recipient address from the payload
         address recipient = abi.decode(payload, (address));
 
-        IERC20(receivedTokens[0].tokenAddress).approve(
-            recipient,
-            receivedTokens[0].amount
-        );
+        IERC20(receivedTokens[0].tokenAddress).approve(recipient, receivedTokens[0].amount);
         // Transfer the received tokens to the intended recipient
-        IERC20(receivedTokens[0].tokenAddress).transfer(
-            recipient,
-            receivedTokens[0].amount
-        );
+        IERC20(receivedTokens[0].tokenAddress).transfer(recipient, receivedTokens[0].amount);
     }
 }

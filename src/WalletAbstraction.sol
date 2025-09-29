@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.26;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
  * @title WalletAbstraction
@@ -12,7 +12,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
  * @notice A contract for managing user registration and mapping of user information like usernames and addresses.
  * @dev Inherits from Ownable for access control and ReentrancyGuard for security against reentrancy attacks.
  */
-
 contract WalletAbstraction is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
@@ -45,34 +44,22 @@ contract WalletAbstraction is Ownable, ReentrancyGuard {
     uint256 private nextUserId = 1;
 
     /// @dev Emitted when a new user is registered
-    event UserRegistered(
-        address indexed userAddress,
-        uint256 indexed userId,
-        string username
-    );
+    event UserRegistered(address indexed userAddress, uint256 indexed userId, string username);
 
     /**
      * @notice Initializes the contract with an initial owner
      * @param InitialOwner The address to be set as the initial owner of the contract
      */
-    constructor(address InitialOwner) Ownable(InitialOwner) {}
+    constructor(address InitialOwner) Ownable(InitialOwner) { }
 
     /**
      * @notice Registers a new user with a unique username
      * @param _username The desired username for the new user
      */
-    function registerUser(
-        string memory _username
-    ) external returns (uint256 userId) {
+    function registerUser(string memory _username) external returns (uint256 userId) {
         require(!users[msg.sender].isRegistered, UserAlreadyRegistered());
-        require(
-            usernameToAddress[_username] == address(0),
-            UsernameAlreadyTaken()
-        );
-        require(
-            bytes(_username).length > 0 && bytes(_username).length <= 20,
-            InvalidUsernameLength()
-        );
+        require(usernameToAddress[_username] == address(0), UsernameAlreadyTaken());
+        require(bytes(_username).length > 0 && bytes(_username).length <= 20, InvalidUsernameLength());
 
         userId = nextUserId++;
         users[msg.sender] = User(userId, _username, true);
@@ -109,9 +96,7 @@ contract WalletAbstraction is Ownable, ReentrancyGuard {
      * @param _userAddress The address of the user
      * @return The username associated with the given address
      */
-    function getUsername(
-        address _userAddress
-    ) external view returns (string memory) {
+    function getUsername(address _userAddress) external view returns (string memory) {
         require(users[_userAddress].isRegistered, UserNotRegistered());
         return users[_userAddress].username;
     }
@@ -121,9 +106,7 @@ contract WalletAbstraction is Ownable, ReentrancyGuard {
      * @param _userAddress The address to check
      * @return A boolean indicating whether the address is registered
      */
-    function isUserRegistered(
-        address _userAddress
-    ) external view returns (bool) {
+    function isUserRegistered(address _userAddress) external view returns (bool) {
         return users[_userAddress].isRegistered;
     }
 }
