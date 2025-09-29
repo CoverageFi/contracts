@@ -61,6 +61,16 @@ contract CrossChainReceiverV2 is TokenReceiver {
     event Unpaused(address account);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     
+        // ============ Errors ============
+    
+    error Unauthorized();
+    error ContractPaused();
+    error InvalidFee();
+    error InvalidAddress();
+    error NoTokensReceived();
+    error TransferFailed();
+    error ReentrancyGuard();
+    
     // ============ Constructor ============
     
     constructor(
