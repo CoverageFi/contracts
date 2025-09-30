@@ -73,6 +73,11 @@ contract CrossChainReceiverV2 is TokenReceiver {
         if (msg.sender != owner) revert Unauthorized();
         _;
     }
+
+    modifier whenNotPaused() {
+        if (paused) revert ContractPaused();
+        _;
+    }
     // ============ Constructor ============
 
     constructor(
