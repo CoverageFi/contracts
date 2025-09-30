@@ -68,7 +68,7 @@ contract CrossChainReceiverV2 is TokenReceiver {
     error ReentrancyGuard();
 
     // ============ Modifiers ============
-    
+
     modifier onlyOwner() {
         if (msg.sender != owner) revert Unauthorized();
         _;
@@ -79,7 +79,7 @@ contract CrossChainReceiverV2 is TokenReceiver {
         _;
     }
 
-        modifier nonReentrant() {
+    modifier nonReentrant() {
         if (locked != 1) revert ReentrancyGuard();
         locked = 2;
         _;
