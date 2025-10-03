@@ -67,6 +67,24 @@ contract CrossChainReceiverV2 is TokenReceiver {
     error TransferFailed();
     error ReentrancyGuard();
 
+    // ============ Modifiers ============
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert Unauthorized();
+        _;
+    }
+
+    modifier whenNotPaused() {
+        if (paused) revert ContractPaused();
+        _;
+    }
+
+    modifier nonReentrant() {
+        if (locked != 1) revert ReentrancyGuard();
+        locked = 2;
+        _;
+        locked = 1;
+    }
     // ============ Constructor ============
 
     constructor(
@@ -86,5 +104,68 @@ contract CrossChainReceiverV2 is TokenReceiver {
         protocolFeeBps = _protocolFeeBps;
 
         emit OwnershipTransferred(address(0), msg.sender);
+    }
+
+    // ============ Main Functions ============
+
+    /**
+     * @notice Receives cross-chain payload and tokens with enhanced validation
+     * @dev Supports multiple tokens and protocol fee collection
+     */
+    function receivePayloadAndTokens(
+        bytes memory payload,
+        TokenReceived[] memory receivedTokens,
+        bytes32 sourceAddress,
+        uint16 sourceChain,
+        bytes32 // deliveryHash
+    )
+        internal
+        override
+        onlyWormholeRelayer
+        isRegisteredSender(sourceChain, sourceAddress)
+        whenNotPaused
+        nonReentrant
+    {
+        if (receivedTokens.length == 0) revert NoTokensReceived();
+
+        // Decode recipient and optional custom logic flag
+        (address recipient, bool directTransfer) = abi.decode(payload, (address, bool));
+        if (recipient == address(0)) revert InvalidAddress();
+
+        uint256 tokenCount = receivedTokens.length;
+        address[] memory tokens = new address[](tokenCount);
+        uint256[] memory amounts = new uint256[](tokenCount);
+
+        // Process each token
+        for (uint256 i = 0; i < tokenCount; i++) {
+            TokenReceived memory token = receivedTokens[i];
+            tokens[i] = token.tokenAddress;
+
+            // Calculate protocol fee
+            uint256 fee = 0;
+            if (protocolFeeBps > 0) {
+                fee = (token.amount * protocolFeeBps) / 10_000;
+
+                // Transfer fee to collector
+                if (fee > 0) {
+                    _safeTransfer(token.tokenAddress, feeCollector, fee);
+                    emit ProtocolFeeCollected(token.tokenAddress, fee, feeCollector);
+                }
+            }
+
+            // Calculate amount after fee
+            uint256 amountAfterFee = token.amount - fee;
+            amounts[i] = amountAfterFee;
+
+            if (directTransfer) {
+                // Direct transfer to recipient
+                _safeTransfer(token.tokenAddress, recipient, amountAfterFee);
+            } else {
+                // Approve recipient to pull tokens (useful for contract recipients)
+                IERC20(token.tokenAddress).approve(recipient, amountAfterFee);
+            }
+        }
+
+        emit TokensReceived(sourceChain, sourceAddress, recipient, tokens, amounts, block.timestamp);
     }
 }
