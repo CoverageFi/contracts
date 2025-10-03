@@ -67,6 +67,13 @@ contract CrossChainReceiverV2 is TokenReceiver {
     error TransferFailed();
     error ReentrancyGuard();
 
+    // ============ Modifiers ============
+    
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert Unauthorized();
+        _;
+    }
+    
     // ============ Constructor ============
 
     constructor(
