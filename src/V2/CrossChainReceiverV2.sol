@@ -68,7 +68,7 @@ contract CrossChainReceiverV2 is TokenReceiver {
     error ReentrancyGuard();
 
     // ============ Modifiers ============
-    
+
     modifier onlyOwner() {
         if (msg.sender != owner) revert Unauthorized();
         _;
@@ -78,7 +78,8 @@ contract CrossChainReceiverV2 is TokenReceiver {
         if (paused) revert ContractPaused();
         _;
     }
-        modifier nonReentrant() {
+
+    modifier nonReentrant() {
         if (locked != 1) revert ReentrancyGuard();
         locked = 2;
         _;
@@ -106,7 +107,7 @@ contract CrossChainReceiverV2 is TokenReceiver {
     }
 
     // ============ Main Functions ============
-    
+
     /**
      * @notice Receives cross-chain payload and tokens with enhanced validation
      * @dev Supports multiple tokens and protocol fee collection
@@ -139,23 +140,23 @@ contract CrossChainReceiverV2 is TokenReceiver {
         for (uint256 i = 0; i < tokenCount; i++) {
             TokenReceived memory token = receivedTokens[i];
             tokens[i] = token.tokenAddress;
-            
+
             // Calculate protocol fee
             uint256 fee = 0;
             if (protocolFeeBps > 0) {
-                fee = (token.amount * protocolFeeBps) / 10000;
-                
+                fee = (token.amount * protocolFeeBps) / 10_000;
+
                 // Transfer fee to collector
                 if (fee > 0) {
                     _safeTransfer(token.tokenAddress, feeCollector, fee);
                     emit ProtocolFeeCollected(token.tokenAddress, fee, feeCollector);
                 }
             }
-            
+
             // Calculate amount after fee
             uint256 amountAfterFee = token.amount - fee;
             amounts[i] = amountAfterFee;
-            
+
             if (directTransfer) {
                 // Direct transfer to recipient
                 _safeTransfer(token.tokenAddress, recipient, amountAfterFee);
@@ -165,13 +166,6 @@ contract CrossChainReceiverV2 is TokenReceiver {
             }
         }
 
-        emit TokensReceived(
-            sourceChain,
-            sourceAddress,
-            recipient,
-            tokens,
-            amounts,
-            block.timestamp
-        );
+        emit TokensReceived(sourceChain, sourceAddress, recipient, tokens, amounts, block.timestamp);
     }
 }
