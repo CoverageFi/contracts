@@ -104,4 +104,68 @@ contract CrossChainReceiverV2 is TokenReceiver {
 
         emit OwnershipTransferred(address(0), msg.sender);
     }
+
+    function receivePayloadAndTokens(
+        bytes memory payload,
+        TokenReceived[] memory receivedTokens,
+        bytes32 sourceAddress,
+        uint16 sourceChain,
+        bytes32 // deliveryHash
+    )
+        internal
+        override
+        onlyWormholeRelayer
+        isRegisteredSender(sourceChain, sourceAddress)
+        whenNotPaused
+        nonReentrant
+    {
+        if (receivedTokens.length == 0) revert NoTokensReceived();
+
+        // Decode recipient and optional custom logic flag
+        (address recipient, bool directTransfer) = abi.decode(payload, (address, bool));
+        if (recipient == address(0)) revert InvalidAddress();
+
+        uint256 tokenCount = receivedTokens.length;
+        address[] memory tokens = new address[](tokenCount);
+        uint256[] memory amounts = new uint256[](tokenCount);
+
+        // Process each token
+        for (uint256 i = 0; i < tokenCount; i++) {
+            TokenReceived memory token = receivedTokens[i];
+            tokens[i] = token.tokenAddress;
+            
+            // Calculate protocol fee
+            uint256 fee = 0;
+            if (protocolFeeBps > 0) {
+                fee = (token.amount * protocolFeeBps) / 10000;
+                
+                // Transfer fee to collector
+                if (fee > 0) {
+                    _safeTransfer(token.tokenAddress, feeCollector, fee);
+                    emit ProtocolFeeCollected(token.tokenAddress, fee, feeCollector);
+                }
+            }
+            
+            // Calculate amount after fee
+            uint256 amountAfterFee = token.amount - fee;
+            amounts[i] = amountAfterFee;
+            
+            if (directTransfer) {
+                // Direct transfer to recipient
+                _safeTransfer(token.tokenAddress, recipient, amountAfterFee);
+            } else {
+                // Approve recipient to pull tokens (useful for contract recipients)
+                IERC20(token.tokenAddress).approve(recipient, amountAfterFee);
+            }
+        }
+
+        emit TokensReceived(
+            sourceChain,
+            sourceAddress,
+            recipient,
+            tokens,
+            amounts,
+            block.timestamp
+        );
+    }
 }
