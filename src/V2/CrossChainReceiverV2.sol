@@ -78,6 +78,12 @@ contract CrossChainReceiverV2 is TokenReceiver {
         if (paused) revert ContractPaused();
         _;
     }
+        modifier nonReentrant() {
+        if (locked != 1) revert ReentrancyGuard();
+        locked = 2;
+        _;
+        locked = 1;
+    }
     // ============ Constructor ============
 
     constructor(
