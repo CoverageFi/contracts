@@ -105,6 +105,12 @@ contract CrossChainReceiverV2 is TokenReceiver {
         emit OwnershipTransferred(address(0), msg.sender);
     }
 
+    // ============ Main Functions ============
+    
+    /**
+     * @notice Receives cross-chain payload and tokens with enhanced validation
+     * @dev Supports multiple tokens and protocol fee collection
+     */
     function receivePayloadAndTokens(
         bytes memory payload,
         TokenReceived[] memory receivedTokens,
